@@ -29,6 +29,20 @@ sns_message = EmailWebhookRequest(**sns_json_data)
 validate_sns_signature(sns_message, expected_topic_arn="arn:aws:sns:...")
 ```
 
+## Publish
+
+```bash
+
+#.env
+UV_PUBLISH_TOKEN=pypi-...
+
+# export all envs in .env to the terminal
+export $(cat .env | xargs)
+uv build && uv publish
+```
+
+ 
+
 ## Dependencies
 
 - Python 3.13+

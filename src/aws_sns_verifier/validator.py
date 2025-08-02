@@ -16,7 +16,9 @@ _DEFAULT_CERTIFICATE_URL_REGEX = (
 )
 
 
-def validate_sns_signature(message: dict, expected_topic_arn: str | None = None):
+def validate_sns_signature(
+    message: dict, expected_topic_arn: str | None = None
+) -> EmailWebhookRequest | SNSSubscriptionConfirmation:
     try:
         body = _validate_message_type(message)
         _validate_certificate_url(cert_url=body.SigningCertURL)
@@ -40,6 +42,7 @@ def validate_sns_signature(message: dict, expected_topic_arn: str | None = None)
             PKCS1v15(),  # type: ignore
             hash_algorithm,  # type: ignore
         )
+        return body
     except Exception as e:
         raise Exception(f"Invalid signature: {e}")
 
