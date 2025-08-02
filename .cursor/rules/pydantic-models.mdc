@@ -1,0 +1,35 @@
+---
+description: Pydantic model conventions for AWS SNS data structures
+---
+
+# Pydantic Model Conventions
+
+## Model Definitions
+- All SNS message models inherit from `pydantic.BaseModel`
+- Use exact field names as defined in AWS SNS documentation
+- Capitalize field names to match SNS JSON format: `MessageId`, `TopicArn`, `SignatureVersion`
+
+## Field Types
+- Use appropriate Python types: `str`, `list[str]`, etc.
+- Use `Any` type for complex nested data that varies
+- For nested structures, define inner classes within the main model
+
+## Model Usage
+- Use union types for functions that accept multiple model types:
+  ```python
+  def validate_sns_signature(
+      body: EmailWebhookRequest | SNSSubscriptionConfirmation,
+      expected_topic_arn: str | None = None,
+  ):
+  ```
+
+## Validation
+- Let Pydantic handle basic validation automatically
+- Use `isinstance()` checks when you need to distinguish between union types
+- Example: `assert isinstance(body, SNSSubscriptionConfirmation)`
+
+## Model Examples
+- `EmailWebhookRequest`: For SNS Notification messages
+- `SNSSubscriptionConfirmation`: For subscription/unsubscribe confirmations  
+- `EmailAttachment`: For extracted email attachments
+- `EmailWebhookMessage`: For parsed email content structure

@@ -1,0 +1,20 @@
+---
+alwaysApply: true
+---
+
+# AWS SNS Verifier Project Structure
+
+This is a Python library for verifying AWS SNS signatures. The main components are:
+
+- **Core validation**: [src/aws_sns_verifier/validator.py](mdc:src/aws_sns_verifier/validator.py) - Main signature validation logic
+- **Data models**: [src/aws_sns_verifier/models.py](mdc:src/aws_sns_verifier/models.py) - Pydantic models for SNS messages
+- **Email handling**: [src/aws_sns_verifier/attachments.py](mdc:src/aws_sns_verifier/attachments.py) - Email attachment extraction
+- **Package config**: [pyproject.toml](mdc:pyproject.toml) - Project dependencies and configuration
+
+## Architecture Principles
+
+- Uses Pydantic models for all data validation and type safety
+- Follows AWS SNS documentation standards exactly
+- Cryptographic operations use the `cryptography` library
+- All functions include comprehensive type hints
+- Error handling uses descriptive exception messages

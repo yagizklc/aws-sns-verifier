@@ -1,0 +1,29 @@
+---
+description: AWS SNS specific patterns and requirements
+---
+
+# AWS SNS Verification Patterns
+
+## Certificate Validation
+- Always validate certificate URLs against AWS pattern: `^https://sns\.[a-zA-Z0-9\-]{3,}\.amazonaws\.com(\.cn)?/`
+- Cache certificates using `@functools.lru_cache(maxsize=10)`
+- Validate certificate issuer contains Amazon indicators: `["Amazon", "AWS", "amazon.com"]`
+- Check certificate validity dates against UTC time
+
+## Signature Verification
+- Support signature versions "1" (SHA1) and "2" (SHA256)
+- Use PKCS1v15 padding for RSA signature verification
+- Validate TopicArn when provided: `assert body.TopicArn == expected_topic_arn`
+
+## Message Types
+- **Notification**: Uses `EmailWebhookRequest` model
+- **SubscriptionConfirmation/UnsubscribeConfirmation**: Uses `SNSSubscriptionConfirmation` model
+- Different message types have different plaintext signing formats
+
+## Plaintext Construction
+Follow AWS documentation exactly for plaintext construction:
+- **SubscriptionConfirmation**: Message, MessageId, SubscribeURL, Timestamp, Token, TopicArn, Type
+- **Notification with Subject**: Message, MessageId, Subject, Timestamp, TopicArn, Type  
+- **Notification without Subject**: Message, MessageId, Timestamp, TopicArn, Type
+
+Format: `key\nvalue\nkey\nvalue\n...`

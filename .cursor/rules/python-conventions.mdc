@@ -1,0 +1,31 @@
+---
+globs: *.py
+---
+
+# Python Code Conventions
+
+## Type Hints
+- **Always use type hints** for function parameters and return values
+- Use union types with `|` syntax (Python 3.10+ style): `str | None` instead of `Optional[str]`
+- Import types from `typing` when needed
+
+## Error Handling
+- Use descriptive exception messages that include context
+- Wrap low-level errors with higher-level context:
+  ```python
+  except Exception as e:
+      raise Exception(f"Invalid signature: {e}")
+  ```
+
+## Validation Patterns
+- Use `assert` statements for input validation with descriptive messages
+- Example: `assert signature_version in ["1", "2"], "Invalid signature version, must be 1 or 2"`
+
+## Imports
+- Group imports: standard library, third-party, local imports
+- Use absolute imports for local modules: `from aws_sns_verifier.models import ...`
+
+## Code Style
+- Use descriptive variable names
+- Private functions start with underscore: `_validate_certificate_url`
+- Use `functools.lru_cache` for expensive operations like certificate fetching
