@@ -1,5 +1,6 @@
 import base64
 import functools
+import json
 import re
 from datetime import datetime, timezone
 
@@ -17,8 +18,22 @@ _DEFAULT_CERTIFICATE_URL_REGEX = (
 
 
 def validate_sns_signature(
-    message: dict, expected_topic_arn: str | None = None
+    message: dict | bytes,
+    expected_topic_arn: str | None = None,
+    auto_confirm_subscription: bool = True,
 ) -> EmailWebhookRequest | SNSSubscriptionConfirmation:
+    """
+    Validate the signature of an SNS message.
+
+    Args:
+        message: The message to validate.
+        expected_topic_arn: The expected topic ARN.
+        is_mail_message: Whether the message is a mail message.
+        auto_confirm_subscription: Whether to auto confirm subscription / unsubscribe.
+
+    Returns:
+        The validated message.
+    """
     try:
         body = _validate_message_type(message)
         _validate_certificate_url(cert_url=body.SigningCertURL)
@@ -42,14 +57,21 @@ def validate_sns_signature(
             PKCS1v15(),  # type: ignore
             hash_algorithm,  # type: ignore
         )
+
+        # auto confirm subscription
+        _handle_auto_confirm_subscription(body, auto_confirm_subscription)
+
         return body
     except Exception as e:
         raise Exception(f"Invalid signature: {e}")
 
 
 def _validate_message_type(
-    message: dict,
+    message: dict | bytes,
 ) -> EmailWebhookRequest | SNSSubscriptionConfirmation:
+    message = json.loads(message) if isinstance(message, bytes) else message
+    assert isinstance(message, dict), "Message must be a dictionary"
+
     message_type = message["Type"]
     if (
         message_type == "SubscriptionConfirmation"
@@ -147,3 +169,18 @@ def _get_plaintext_to_sign(
             )
     pairs = [f"{key}\n{getattr(body, key)}" for key in keys]
     return "\n".join(pairs) + "\n"
+
+
+def _handle_auto_confirm_subscription(
+    body: SNSSubscriptionConfirmation | EmailWebhookRequest,
+    auto_confirm_subscription: bool,
+) -> None:
+    if auto_confirm_subscription and (
+        body.Type == "SubscriptionConfirmation"
+        or body.Type == "UnsubscribeConfirmation"
+    ):
+        assert isinstance(body, SNSSubscriptionConfirmation), (
+            "SubscriptionConfirmation body must be an SNSSubscriptionConfirmation"
+        )
+        with urllib.request.urlopen(body.SubscribeURL) as response:
+            response.read()

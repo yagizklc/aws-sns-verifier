@@ -24,7 +24,7 @@ class EmailWebhookRequest(BaseModel):
     MessageId: str
     TopicArn: str
     Subject: str
-    Message: str
+    Message: str | EmailWebhookMessage
     Timestamp: str
     SignatureVersion: str
     Signature: str
