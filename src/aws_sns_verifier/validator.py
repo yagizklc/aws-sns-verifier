@@ -16,11 +16,9 @@ _DEFAULT_CERTIFICATE_URL_REGEX = (
 )
 
 
-def validate_sns_signature(
-    body: EmailWebhookRequest | SNSSubscriptionConfirmation,
-    expected_topic_arn: str | None = None,
-):
+def validate_sns_signature(message: dict, expected_topic_arn: str | None = None):
     try:
+        body = _validate_message_type(message)
         _validate_certificate_url(cert_url=body.SigningCertURL)
         hash_algorithm = _validate_signature_version(
             signature_version=body.SignatureVersion
@@ -44,6 +42,21 @@ def validate_sns_signature(
         )
     except Exception as e:
         raise Exception(f"Invalid signature: {e}")
+
+
+def _validate_message_type(
+    message: dict,
+) -> EmailWebhookRequest | SNSSubscriptionConfirmation:
+    message_type = message["Type"]
+    if (
+        message_type == "SubscriptionConfirmation"
+        or message_type == "UnsubscribeConfirmation"
+    ):
+        return SNSSubscriptionConfirmation.model_validate(message)
+    elif message_type == "Notification":
+        return EmailWebhookRequest.model_validate(message)
+    else:
+        raise Exception(f"Invalid message type: {message['Type']}")
 
 
 def _validate_signature_version(signature_version: str) -> SHA1 | SHA256:
