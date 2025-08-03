@@ -2,7 +2,9 @@ from aws_sns_verifier.models import EmailAttachment
 import email
 
 
-def extract_attachments_from_email(raw_email: str) -> list[EmailAttachment]:
+def extract_attachments_from_email(
+    raw_email: str, key: str
+) -> list[EmailAttachment]:
     """
     Extract attachments from raw email message.
 
@@ -42,6 +44,7 @@ def extract_attachments_from_email(raw_email: str) -> list[EmailAttachment]:
                 content_type=content_type,
                 size=len(payload),
                 data=payload,
+                s3_key=key,
             )
             attachments.append(attachment)
 

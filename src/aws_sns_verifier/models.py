@@ -34,10 +34,9 @@ class EmailReceivedMessage(BaseModel):
         Extract the attachments from the email.
         """
         try:
-            response = s3_client.get_object(
-                Bucket=bucket_name, Key=f"{prefix}/{self.mail.messageId}"
-            )
-            return extract_attachments_from_email(response["Body"].read())
+            key = f"{prefix}/{self.mail.messageId}"
+            raw_email = s3_client.get_object(Bucket=bucket_name, Key=key)["Body"].read()
+            return extract_attachments_from_email(raw_email=raw_email, key=key)
         except Exception:
             return None
 
@@ -70,6 +69,7 @@ class EmailAttachment(BaseModel):
     content_type: str
     size: int
     data: Any
+    s3_key: str
 
 
 class SNSSubscriptionConfirmation(BaseModel):
@@ -84,5 +84,5 @@ class SNSSubscriptionConfirmation(BaseModel):
     Signature: str
     SigningCertURL: str
 
-    # for ease of use when trying to access 'validate_sns_signature.Email'
+    # for ease of use when trying to access 'validate_sns_signature.Email'
     Email: None = None
