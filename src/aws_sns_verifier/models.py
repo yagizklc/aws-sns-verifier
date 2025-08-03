@@ -1,11 +1,5 @@
-from typing import Any
-
 from pydantic import BaseModel, model_validator
-
-from aws_sns_verifier.attachments import (
-    extract_attachments_from_email,
-    EmailAttachment,
-)
+from aws_sns_verifier.attachments import extract_attachments_from_email, EmailAttachment
 
 
 class EmailReceivedMessage(BaseModel):
@@ -65,14 +59,6 @@ class SNSWebhookMessage(BaseModel):
             pass
 
         return self
-
-
-class EmailAttachment(BaseModel):
-    filename: str
-    content_type: str
-    size: int
-    data: Any
-    s3_key: str
 
 
 class SNSSubscriptionConfirmation(BaseModel):

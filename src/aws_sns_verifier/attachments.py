@@ -1,10 +1,18 @@
-from aws_sns_verifier.models import EmailAttachment
+from typing import Any
+
 import email
+from pydantic import BaseModel
 
 
-def extract_attachments_from_email(
-    raw_email: str, key: str
-) -> list[EmailAttachment]:
+class EmailAttachment(BaseModel):
+    filename: str
+    content_type: str
+    size: int
+    data: Any
+    s3_key: str
+
+
+def extract_attachments_from_email(raw_email: str, key: str) -> list[EmailAttachment]:
     """
     Extract attachments from raw email message.
 
