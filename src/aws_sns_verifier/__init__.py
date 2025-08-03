@@ -4,13 +4,13 @@ https://docs.aws.amazon.com/sns/latest/dg/sns-verify-signature-of-message.html
 
 """
 
-from .models import (
+from aws_sns_verifier.models import (
     SNSWebhookMessage,
     SNSSubscriptionConfirmation,
     EmailReceivedMessage,
 )
-from .attachments import EmailAttachment, extract_attachments_from_email
-from .validator import validate_sns_signature
+from aws_sns_verifier.attachments import EmailAttachment, extract_attachments_from_email
+from aws_sns_verifier.validator import validate_sns_signature
 
 __all__ = [
     "validate_sns_signature",

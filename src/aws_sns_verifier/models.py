@@ -2,7 +2,10 @@ from typing import Any
 
 from pydantic import BaseModel, model_validator
 
-from .attachments import extract_attachments_from_email, EmailAttachment
+from aws_sns_verifier.attachments import (
+    extract_attachments_from_email,
+    EmailAttachment,
+)
 
 
 class EmailReceivedMessage(BaseModel):
