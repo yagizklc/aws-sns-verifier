@@ -10,7 +10,7 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric.padding import PKCS1v15
 from cryptography.hazmat.primitives.hashes import SHA1, SHA256
 
-from aws_sns_verifier.models import EmailWebhookRequest, SNSSubscriptionConfirmation
+from aws_sns_verifier.models import SNSWebhookMessage, SNSSubscriptionConfirmation
 
 _DEFAULT_CERTIFICATE_URL_REGEX = (
     r"^https://sns\.[a-zA-Z0-9\-]{3,}\.amazonaws\.com(\.cn)?/"
@@ -21,7 +21,7 @@ def validate_sns_signature(
     message: dict | bytes,
     expected_topic_arn: str | None = None,
     auto_confirm_subscription: bool = True,
-) -> EmailWebhookRequest | SNSSubscriptionConfirmation:
+) -> SNSWebhookMessage | SNSSubscriptionConfirmation:
     """
     Validate the signature of an SNS message.
 
@@ -68,7 +68,7 @@ def validate_sns_signature(
 
 def _validate_message_type(
     message: dict | bytes,
-) -> EmailWebhookRequest | SNSSubscriptionConfirmation:
+) -> SNSWebhookMessage | SNSSubscriptionConfirmation:
     message = json.loads(message) if isinstance(message, bytes) else message
     assert isinstance(message, dict), "Message must be a dictionary"
 
@@ -79,7 +79,7 @@ def _validate_message_type(
     ):
         return SNSSubscriptionConfirmation.model_validate(message)
     elif message_type == "Notification":
-        return EmailWebhookRequest.model_validate(message)
+        return SNSWebhookMessage.model_validate(message)
     else:
         raise Exception(f"Invalid message type: {message['Type']}")
 
@@ -127,7 +127,7 @@ def _get_certificate(cert_url: str):
 
 
 def _get_plaintext_to_sign(
-    body: EmailWebhookRequest | SNSSubscriptionConfirmation,
+    body: SNSWebhookMessage | SNSSubscriptionConfirmation,
 ) -> str:
     message_type = body.Type
     if (
@@ -147,8 +147,8 @@ def _get_plaintext_to_sign(
             "Type",
         )
     elif message_type == "Notification":
-        assert isinstance(body, EmailWebhookRequest), (
-            "Notification body must be an EmailWebhookRequest"
+        assert isinstance(body, SNSWebhookMessage), (
+            "Notification body must be an SNSWebhookMessage"
         )
         if body.Subject:
             keys = (
@@ -172,7 +172,7 @@ def _get_plaintext_to_sign(
 
 
 def _handle_auto_confirm_subscription(
-    body: SNSSubscriptionConfirmation | EmailWebhookRequest,
+    body: SNSSubscriptionConfirmation | SNSWebhookMessage,
     auto_confirm_subscription: bool,
 ) -> None:
     if auto_confirm_subscription and (

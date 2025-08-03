@@ -29,7 +29,7 @@ sns_message = EmailWebhookRequest(**sns_json_data)
 validate_sns_signature(sns_message, expected_topic_arn="arn:aws:sns:...")
 ```
 
-## Publish
+## Publish
 
 ```bash
 
