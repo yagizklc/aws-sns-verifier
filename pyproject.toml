@@ -1,6 +1,6 @@
 [project]
 name = "aws-sns-verifier"
-version = "0.1.10"
+version = "0.1.11"
 description = "AWS SNS Verifier"
 readme = "README.md"
 authors = [{ name = "yagizklc", email = "yagizkilicarslan1@gmail.com" }]

@@ -1,5 +1,7 @@
+from typing import Self
 from pydantic import BaseModel, model_validator
 from aws_sns_verifier.attachments import extract_attachments_from_email, EmailAttachment
+import logfire_api as logfire
 
 
 class EmailReceivedMessage(BaseModel):
@@ -51,12 +53,13 @@ class SNSWebhookMessage(BaseModel):
     UnsubscribeURL: str
     Email: EmailReceivedMessage | None = None
 
-    @model_validator(mode="before")
-    def validate_message(self) -> "SNSWebhookMessage":
+    @model_validator(mode="after")
+    def validate_message(self) -> Self:
         try:
+            logfire.debug(f"Validating email message: {self.Message}")
             self.Email = EmailReceivedMessage.model_validate_json(self.Message)
-        except Exception:
-            pass
+        except Exception as e:
+            logfire.warn(f"Failed to validate email message: {e}")
 
         return self
 
