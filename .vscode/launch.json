@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "aws-sns-verifier-test",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pytest",
+      "args": [
+        "tests/test_main.py::test_swm_valid_with_email"
+      ],
+      "cwd": "${workspaceFolder}",
+    },
+  ]
+}

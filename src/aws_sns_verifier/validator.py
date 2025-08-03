@@ -67,7 +67,7 @@ def validate_sns_signature(
         # auto confirm subscription
         _handle_auto_confirm_subscription(body, auto_confirm_subscription)
 
-        logfire.info(f"SNS message validation completed successfully for {body.Type}")
+        logfire.info(f"SNS message validation completed successfully for {body=}")
         return body
     except Exception as e:
         logfire.warn(f"Invalid signature {e=}")
