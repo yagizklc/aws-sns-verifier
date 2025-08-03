@@ -1,6 +1,7 @@
+import email
 from typing import Any
 
-import email
+import logfire_api as logfire
 from pydantic import BaseModel
 
 
@@ -12,6 +13,7 @@ class EmailAttachment(BaseModel):
     s3_key: str
 
 
+@logfire.instrument("Extracting attachments from email")
 def extract_attachments_from_email(raw_email: str, key: str) -> list[EmailAttachment]:
     """
     Extract attachments from raw email message.
@@ -26,7 +28,11 @@ def extract_attachments_from_email(raw_email: str, key: str) -> list[EmailAttach
 
     try:
         # Parse the email & Walk through all parts of the email
-        for part in email.message_from_string(raw_email).walk():
+        email_message = email.message_from_string(raw_email)
+        email_parts = list(email_message.walk())
+        logfire.debug(f"Parsed email with {len(email_parts)} parts")
+
+        for part in email_parts:
             # Skip non-attachment parts
             if part.get_content_maintype() == "multipart":
                 continue
@@ -55,8 +61,14 @@ def extract_attachments_from_email(raw_email: str, key: str) -> list[EmailAttach
                 s3_key=key,
             )
             attachments.append(attachment)
+            logfire.debug(f"Extracted attachment: {filename} ({len(payload)} bytes)")
+
+        logfire.info(
+            f"Successfully extracted {len(attachments)} attachments from email"
+        )
 
     except Exception as e:
+        logfire.warn(f"Failed to extract attachments: {e}")
         raise Exception(f"Failed to extract attachments: {e}")
 
     return attachments
