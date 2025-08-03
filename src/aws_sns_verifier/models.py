@@ -34,7 +34,11 @@ class EmailReceivedMessage(BaseModel):
         """
         try:
             key = f"{prefix}/{self.mail.messageId}"
-            raw_email = s3_client.get_object(Bucket=bucket_name, Key=key)["Body"].read()
+            raw_email = (
+                s3_client.get_object(Bucket=bucket_name, Key=key)["Body"]
+                .read()
+                .decode("utf-8")
+            )
             return extract_attachments_from_email(raw_email=raw_email, key=key)
         except Exception:
             return None
