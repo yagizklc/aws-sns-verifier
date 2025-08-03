@@ -83,3 +83,6 @@ class SNSSubscriptionConfirmation(BaseModel):
     SignatureVersion: str
     Signature: str
     SigningCertURL: str
+
+    # for ease of use when trying to access 'validate_sns_signature.Email'
+    Email: None = None
