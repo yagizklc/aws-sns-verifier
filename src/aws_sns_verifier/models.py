@@ -1,4 +1,4 @@
-from typing import Self
+from typing import Any, Self
 from pydantic import BaseModel, model_validator
 from aws_sns_verifier.attachments import extract_attachments_from_email, EmailAttachment
 import logfire_api as logfire
@@ -15,6 +15,7 @@ class EmailReceivedMessage(BaseModel):
         destination: list[str]
         headersTruncated: bool
         headers: list[Headers]
+        commonHeaders: dict[str, Any]
 
     notificationType: str
     mail: Mail
@@ -25,6 +26,26 @@ class EmailReceivedMessage(BaseModel):
         The sender address of the email.
         """
         return self.mail.source
+
+    @property
+    def subject(self) -> str:
+        """
+        The subject of the email.
+        """
+        for header in self.mail.headers:
+            if header.name == "Subject":
+                return header.value
+        return ""
+
+    @property
+    def organization(self) -> str | None:
+        """
+        The organization of the email.
+        """
+        for header in self.mail.headers:
+            if header.name == "Organization":
+                return header.value
+        return None
 
     def attachments(
         self, s3_client, bucket_name: str, prefix: str

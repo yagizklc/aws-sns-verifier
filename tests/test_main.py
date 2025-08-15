@@ -12,6 +12,7 @@ def test_swm_valid_with_email(valid_sns_message: bytes) -> None:
     I should be able to validate the message and get an EmailReceivedMessage.
     """
     msg = json.loads(valid_sns_message)
+    json.dump(msg, open("msg.json", "w"))
     assert isinstance(msg, dict), "Message must be a dictionary"
     x = SNSWebhookMessage.model_validate(msg)
     assert x.Email is not None, "Could not parse email message"
